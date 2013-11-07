@@ -12,8 +12,7 @@ var multipartMiddleware = multipart();
 var app = express().use(express.json()).use(express.urlencoded());
 
 // Global vars
-var CONTENT_PATH = process.env.NODE_ENV == "production" ? 
-                    __dirname + "../content" : __dirname + "/uploads";
+var CONTENT_PATH = __dirname + "/content";
 var PORT = process.env.NODE_ENV == "production" ? "systemd" : 8888; 
 var DB = "pictory", DATA_COLLECTION = "data", LOG_COLLECTION = "logs";
 
