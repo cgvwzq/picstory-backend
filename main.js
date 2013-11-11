@@ -157,7 +157,7 @@ app.post('/upload', multipartMiddleware, function(req, res) {
 			}
 		});
 		
-		fs.writeFile(CONTENT_PATH + "/img/" + newPath, data, function(err) {
+		fs.writeFile(CONTENT_PATH + "/pictures/" + newPath, data, function(err) {
 			if (err) {
                 logger.log('error','%s - POST /upload - escribiendo archivo.', req.headers['X-Real-IP'] || req.ip);
 				res.send(JSON.stringify({"error":"error fs"}), 500);
