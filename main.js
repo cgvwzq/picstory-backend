@@ -9,7 +9,7 @@ var winston = require('winston');
 var multipart = require('connect-multiparty');
 
 var multipartMiddleware = multipart();
-var app = express().use(express.json()).use(express.urlencoded());
+var app = express().use(express.json()).use(express.urlencoded()), corsOptions = { origin: "http://app.pictory.es" };
 
 // Global vars
 var CONTENT_PATH = __dirname + "/content";
@@ -45,7 +45,7 @@ db.open(function(err, client) {
 	con = client;
 });
 
-app.get('/timeline', function(req, res) {
+app.get('/timeline', cors(corsOptions), function(req, res) {
 
 	res.contentType('application/json');
 	
@@ -79,7 +79,7 @@ app.get('/timeline', function(req, res) {
 
 });
 
-app.get('/view', function(req, res) {
+app.get('/view', cors(corsOptions), function(req, res) {
 
 	res.contentType('application/json');
 
@@ -109,7 +109,7 @@ app.get('/view', function(req, res) {
 	
 });
 
-app.post('/upload', multipartMiddleware, function(req, res) {
+app.post('/upload', cors(corsOptions), multipartMiddleware, function(req, res) {
 
 	res.contentType('application/json');
 
