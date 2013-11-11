@@ -56,7 +56,7 @@ app.get('/timeline', cors(corsOptions), function(req, res) {
 	longitud = parseFloat(query.longitud);
 
 	if (isNaN(latitud) || isNaN(longitud)) {
-        logger.log('warn','%s - GET /timeline - parametros inválidos.',req.headers['X-Real-IP'] || req.ip);
+        logger.log('warn','%s - GET /timeline - parametros inválidos.',req.headers['X-Forwarded-For'] || req.ip);
 		res.send("what?!", 400);
 		return;
 	}
@@ -71,10 +71,10 @@ app.get('/timeline', cors(corsOptions), function(req, res) {
 		
 	collection.mapReduce(map, reduce, {out : {inline: 1}, query: {"posicion":{$near:{$geometry:{type:"Point",coordinates:new Array(longitud, latitud)},$maxDistance:5000}}}},function(err, docs){
 		if (err) {
-            logger.log('error','%s - GET /timeline - consulta mapReduce a BD', req.headers['X-Real-IP'] || req.ip);
+            logger.log('error','%s - GET /timeline - consulta mapReduce a BD', req.headers['X-Forwarded-For'] || req.ip);
 			res.send("bd error", 500);
 		} else {
-            logger.log('info','%s - GET /timeline', req.headers['X-Real-IP'] || req.ip); 
+            logger.log('info','%s - GET /timeline', req.headers['X-Forwarded-For'] || req.ip); 
 			res.send(JSON.stringify(docs), 200);
 		}
 	});
@@ -92,17 +92,17 @@ app.get('/view', cors(corsOptions), function(req, res) {
 	fecha = parseInt(query.fecha, 10);
 	
 	if (isNaN(latitud) || isNaN(longitud) || isNaN(fecha)) {
-        logger.log('warn','%s - GET /view - parametros inválidos.', req.headers['X-Real-IP'] || req.ip);
+        logger.log('warn','%s - GET /view - parametros inválidos.', req.headers['X-Forwarded-For'] || req.ip);
 		res.send("what?!", 400);
 		return;
 	}
 		
 	// hacer benchmarks con timestamp y Date y con las coordenadas
-    logger.log('info','%s - GET /view',req.headers['X-Real-IP'] || req.ip); 
+    logger.log('info','%s - GET /view',req.headers['X-Forwarded-For'] || req.ip); 
 		
 	collection.find({"posicion":{$near:{$geometry:{type:"Point",coordinates:new Array(longitud, latitud)},$maxDistance:5000}},"fecha":{$gte:fecha, $lt:fecha+86400000}}).sort({fecha:-1}).toArray(function(err, docs) {
 		if (err) {
-            logger.log('error','%s - GET /find - consulta find a BD', req.headers['X-Real-IP'] || req.ip);
+            logger.log('error','%s - GET /find - consulta find a BD', req.headers['X-Forwarded-For'] || req.ip);
 			res.send("bd error", 500);
 		} else {
 			res.send(JSON.stringify(docs), 200);
@@ -130,7 +130,7 @@ app.post('/upload', cors(corsOptions), multipartMiddleware, function(req, res) {
 	if (file != null) ext = validaExtension(file.type);
 	
 	if (file == null || ext == null || req.body.titulo == '' || isNaN(parseFloat(req.body.latitud)) || isNaN(parseFloat(req.body.longitud))) {
-        logger.log('warn','%s - POST /upload - invalid upload.', req.headers['X-Real-IP'] || req.ip);
+        logger.log('warn','%s - POST /upload - invalid upload.', req.headers['X-Forwarded-For'] || req.ip);
 		res.send(JSON.stringify({"error":"datos inválidos"}), 400);
 		return;
 	}
@@ -155,16 +155,16 @@ app.post('/upload', cors(corsOptions), multipartMiddleware, function(req, res) {
 		
 		collection.insert({titulo:titulo, descripcion:desc, fecha: new Date().getTime(), posicion: {type:"Point", coordinates: new Array(longitud, latitud)}, media:{tipo:"imagen", ruta:fileName + "." + ext, tamaño:size}, categoria:categoria}, {safe:true}, function(err, docs){
 			if (err) {
-                logger.log('error','%s - POST /upload - insertando a BD.', req.headers['X-Real-IP'] || req.ip);
+                logger.log('error','%s - POST /upload - insertando a BD.', req.headers['X-Forwarded-For'] || req.ip);
 			}
 		});
 		
 		fs.writeFile(CONTENT_PATH + "/pictures/" + newPath, data, function(err) {
 			if (err) {
-                logger.log('error','%s - POST /upload - escribiendo archivo.', req.headers['X-Real-IP'] || req.ip);
+                logger.log('error','%s - POST /upload - escribiendo archivo.', req.headers['X-Forwarded-For'] || req.ip);
 				res.send(JSON.stringify({"error":"error fs"}), 500);
 			} else {
-                logger.log('info','%s - POST /upload', req.headers['X-Real-IP'] || req.ip); 
+                logger.log('info','%s - POST /upload', req.headers['X-Forwarded-For'] || req.ip); 
 				res.send("{}",  200);
 			}
 		});
