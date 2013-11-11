@@ -7,3 +7,8 @@ Es necesario tener los modulos:
 
 BD: pictory
 Collections: data, logs
+
+Indexes:
+
+{ "v" : 1, "key" : { "_id" : 1 }, "ns" : "pictory.data", "name" : "_id_" }
+{ "v" : 1, "key" : { "posicion" : "2dsphere", "fecha" : 1 }, "ns" : "pictory.data", "name" : "posicion_2dsphere_fecha_1" }
