@@ -74,7 +74,7 @@ app.get('/timeline', cors(corsOptions), function(req, res) {
             logger.log('error','%s - GET /timeline - consulta mapReduce a BD', req.headers['X-Real-IP'] || req.ip);
 			res.send("bd error", 500);
 		} else {
-            logger.log('info','%s - GET /timeline?fecha=%s.', req.headers['X-Real-IP'] || req.ip, new Date(fecha).toISOString()); 
+            logger.log('info','%s - GET /timeline', req.headers['X-Real-IP'] || req.ip); 
 			res.send(JSON.stringify(docs), 200);
 		}
 	});
@@ -98,7 +98,7 @@ app.get('/view', cors(corsOptions), function(req, res) {
 	}
 		
 	// hacer benchmarks con timestamp y Date y con las coordenadas
-    logger.log('info','%s - GET /view?coord=%s&fecha=%s.',req.headers['X-Real-IP'] || req.ip, new Array(longitud, latitud), new Date(fecha).toISOString()); 
+    logger.log('info','%s - GET /view',req.headers['X-Real-IP'] || req.ip); 
 		
 	collection.find({"posicion":{$near:{$geometry:{type:"Point",coordinates:new Array(longitud, latitud)},$maxDistance:5000}},"fecha":{$gte:fecha, $lt:fecha+86400000}}).sort({fecha:-1}).toArray(function(err, docs) {
 		if (err) {
