@@ -26,7 +26,7 @@ if (process.env.NODE_ENV != "production") {
 // Define los ficheros de log y los distintos niveles
 var logger = new (winston.Logger)({
     transports: [
-        new (winston.transports.File)({filename:'info.log', colorize:true, json:false, timestamp:true})
+        new (winston.transports.File)({filename:'logs/info.log', colorize:true, json:false, timestamp:true})
     ]
 }), debug = new (winston.Logger)({
     transports: [
