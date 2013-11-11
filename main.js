@@ -10,6 +10,7 @@ var multipart = require('connect-multiparty');
 
 var multipartMiddleware = multipart();
 var app = express().use(express.json()).use(express.urlencoded()), corsOptions = { origin: "http://app.pictory.es" };
+app.set('trust proxy', true);
 
 // Global vars
 var CONTENT_PATH = __dirname + "/content";
@@ -73,6 +74,7 @@ app.get('/timeline', cors(corsOptions), function(req, res) {
             logger.log('error','%s - GET /timeline - consulta mapReduce a BD', req.headers['X-Real-IP'] || req.ip);
 			res.send("bd error", 500);
 		} else {
+            logger.log('info','%s - GET /timeline?fecha=%s.', req.headers['X-Real-IP'] || req.ip, new Date(fecha).toISOString()); 
 			res.send(JSON.stringify(docs), 200);
 		}
 	});
@@ -162,6 +164,7 @@ app.post('/upload', cors(corsOptions), multipartMiddleware, function(req, res) {
                 logger.log('error','%s - POST /upload - escribiendo archivo.', req.headers['X-Real-IP'] || req.ip);
 				res.send(JSON.stringify({"error":"error fs"}), 500);
 			} else {
+                logger.log('info','%s - POST /upload', req.headers['X-Real-IP'] || req.ip); 
 				res.send("{}",  200);
 			}
 		});
