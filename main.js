@@ -10,19 +10,11 @@ var multipart = require('connect-multiparty');
 
 var multipartMiddleware = multipart();
 var app = express().use(express.json()).use(express.urlencoded()), corsOptions = { origin: "http://app.pictory.es" };
-app.set('trust proxy', true);
 
 // Global vars
 var CONTENT_PATH = __dirname + "/content";
-var PORT = process.env.NODE_ENV == "production" ? "systemd" : 8888; 
+var PORT = 8888; 
 var DB = "pictory", DATA_COLLECTION = "data", LOG_COLLECTION = "logs";
-
-// En producción nginx es quien se encarga de lo estático
-if (process.env.NODE_ENV != "production") {
-    app.use('/thumbnails', express.static(__dirname + '/uploads'));
-    app.use('/aluapp', express.static(__dirname + '/../app/'));
-    app.use('/manifest.webapp', express.static(__dirname + '/test/manifest.webapp'));
-} 
 
 // Define los ficheros de log y los distintos niveles
 var logger = new (winston.Logger)({
@@ -69,7 +61,7 @@ app.get('/timeline', cors(corsOptions), function(req, res) {
 		return Array.sum(val)
 	}
 		
-	collection.mapReduce(map, reduce, {out : {inline: 1}, query: {"posicion":{$near:{$geometry:{type:"Point",coordinates:new Array(longitud, latitud)},$maxDistance:5000}}}},function(err, docs){
+	collection.mapReduce(map, reduce, {out : {inline: 1}, query: {"posicion":{$near:{$geometry:{type:"Point",coordinates:new Array(longitud, latitud)},$maxDistance:100}}}},function(err, docs){
 		if (err) {
             logger.log('error','%s - GET /timeline - consulta mapReduce a BD', req.headers['X-Forwarded-For'] || req.ip);
 			res.send("bd error", 500);
@@ -100,7 +92,7 @@ app.get('/view', cors(corsOptions), function(req, res) {
 	// hacer benchmarks con timestamp y Date y con las coordenadas
     logger.log('info','%s - GET /view',req.headers['X-Forwarded-For'] || req.ip); 
 		
-	collection.find({"posicion":{$near:{$geometry:{type:"Point",coordinates:new Array(longitud, latitud)},$maxDistance:5000}},"fecha":{$gte:fecha, $lt:fecha+86400000}}).sort({fecha:-1}).toArray(function(err, docs) {
+	collection.find({"posicion":{$near:{$geometry:{type:"Point",coordinates:new Array(longitud, latitud)},$maxDistance:100}},"fecha":{$gte:fecha, $lt:fecha+86400000}}).sort({fecha:-1}).toArray(function(err, docs) {
 		if (err) {
             logger.log('error','%s - GET /find - consulta find a BD', req.headers['X-Forwarded-For'] || req.ip);
 			res.send("bd error", 500);
